@@ -1,0 +1,211 @@
+<!-- eclipse maven project のためのpom -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>jp.or.rim.yk.george.javadiff</groupId>
+  <artifactId>javadiff</artifactId>
+  <packaging>jar</packaging>
+  <version>1.0-${revision}</version>
+  <name>javadiff</name>
+  <url>http://maven.apache.org</url>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+    <!-- Javaバージョン -->
+    <maven.compiler.source>21</maven.compiler.source>
+    <maven.compiler.target>21</maven.compiler.target>
+
+    <!-- ライブラリバージョン -->
+    <junit.jupiter.version>5.10.2</junit.jupiter.version>
+    <mockito.version>5.11.0</mockito.version>
+    <assertj.version>3.25.3</assertj.version>
+
+    <!-- https://qiita.com/kasa_le/items/9698770a04b3e0189eaf Mavenのversionに日付とその日のビルド番号を自動的に付与する - Qiita -->
+    <!-- バージョニングに使うリビジョン番号。 CI/CDツールにて -Drevision=buildNumber で上書きする -->
+    <revision>SNAPSHOT</revision>
+  </properties>
+
+  <!-- ローカルファイルのjarを疑似的に登録したrepoを記載 -->
+  <!-- ローカルrepoへのjarファイルのインストール方法  for powershell
+  & mvn install:install-file "-Dfile=./lib/javadiff.jar" "-DgroupId=dummy" "-DartifactId=javadiff" "-Dversion=0.0.3" "-Dpackaging=jar" "-DlocalRepositoryPath=${PWD}/repo/"
+  -->
+  <!--
+  <repositories>
+    <repository>
+      <id>repo</id>
+      <url>file://${basedir}/repo</url>
+    </repository>
+  </repositories>
+-->
+
+  <dependencies>
+
+
+    <!-- 新型JUnitはテストコード書き直しか。。 -->
+    <!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api -->
+    <!-- JUnit 5 -->
+    <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter</artifactId>
+        <version>${junit.jupiter.version}</version>
+        <scope>test</scope>
+    </dependency>
+
+
+    <!-- https://mvnrepository.com/artifact/org.mockito/mockito-core -->
+        <!-- Mockito core -->
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>${mockito.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+
+        <!-- Mockito + JUnit5 連携 -->
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <version>${mockito.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- AssertJ -->
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <version>${assertj.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+
+  </dependencies>
+
+
+
+  <build>
+
+    <finalName>javadiff</finalName>
+
+    <plugins>
+
+      <!-- コンパイラ設定 -->
+      <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-compiler-plugin -->
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.11.0</version>
+        <configuration>
+          <source>${maven.compiler.source}</source>
+          <target>${maven.compiler.target}</target>
+          <release>${maven.compiler.target}</release>
+          <compilerArgs>
+          </compilerArgs>
+        </configuration>
+      </plugin>
+
+      <!-- JUnit5 を実行するために必須 -->
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <version>3.2.5</version>
+            <configuration>
+                <useModulePath>false</useModulePath>
+            </configuration>
+        </plugin>
+
+
+
+      <!-- 2022.04.08 Java 18 から file.encoding=UTF-8 がデフォルトになったが
+      テストの System.out.println の結果は SJIS で処理される前提らしいので COMPAT を指定 -->
+      <!--
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.12.4</version>
+        <configuration>
+          <argLine>-Dfile.encoding=COMPAT</argLine>
+        </configuration>
+      </plugin>
+      -->
+
+      <!-- jarを作成する maven jar plugin  -->
+      <!-- 本来の goal である jar とは別に実行される。 -->
+      <!-- https://maven.apache.org/plugins/maven-jar-plugin/ -->
+      <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-jar-plugin -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>3.2.2</version>
+        <configuration>
+          <archive>
+            <manifest>
+              <addClasspath>true</addClasspath>
+              <mainClass>jp.or.rim.yk.george.diffmy.Main</mainClass>
+            </manifest>
+          </archive>
+        </configuration>
+      </plugin>
+
+      <!-- packaging の時に、jarのパラメータを与えるために指定する deploy plugin -->
+      <!-- https://kikutaro777.hatenablog.com/entry/20121225/1356440268 maven-jar-plugin、maven-deploy-plugin - Challenge Engineer Life ! -->
+      <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-deploy-plugin -->
+      <!--
+      <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-deploy-plugin</artifactId>
+          <version>2.8.2</version>
+          <executions>
+              <execution>
+                  <phase>deploy</phase>
+                  <goals>
+                      <goal>deploy-file</goal>
+                  </goals>
+                  <configuration>
+                      <packaging>jar</packaging>
+                      <generatePom>true</generatePom>
+                      <url>${project.distributionManagement.repository.url}</url>
+                      <artifactId>${project.artifactId}</artifactId>
+                      <groupId>${project.groupId}</groupId>
+                      <version>${project.version}</version>
+                      <file>${project.build.directory}/${project.artifactId}-${project.version}.jar</file>
+                  </configuration>
+              </execution>
+          </executions>
+      </plugin>
+      -->
+
+      <!-- 依存関係ライブラリを含んだ実行可能jarを作成する maven plugin  -->
+      <!-- https://qiita.com/hakshu/items/0f7b59f00a02b506b07d Maven Assemblyとは？ - Qiita -->
+      <!-- https://maven.apache.org/plugins/maven-assembly-plugin/ Apache Maven Assembly Plugin – Introduction -->
+      <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-assembly-plugin -->
+      <!-- 出力先は target/kjwikig-jar-with-dependencies.jar になる -->
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>3.4.1</version>
+        <configuration>
+          <appendAssemblyId>true</appendAssemblyId>
+          <descriptorRefs>
+            <descriptorRef>jar-with-dependencies</descriptorRef>
+          </descriptorRefs>
+          <archive>
+            <manifest>
+              <mainClass>jp.or.rim.yk.george.diffmy.Main</mainClass>
+            </manifest>
+          </archive>
+        </configuration>
+        <executions>
+          <execution>
+            <id>make-assembly</id>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+    </plugins>
+  </build>
+</project>
