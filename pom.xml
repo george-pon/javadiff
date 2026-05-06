@@ -5,7 +5,7 @@
   <groupId>jp.or.rim.yk.george.javadiff</groupId>
   <artifactId>javadiff</artifactId>
   <packaging>jar</packaging>
-  <version>1.0-${revision}</version>
+  <version>1.0.${revision}</version>
   <name>javadiff</name>
   <url>http://maven.apache.org</url>
 
@@ -31,6 +31,8 @@
   <!-- ローカルrepoへのjarファイルのインストール方法  for powershell
   & mvn install:install-file "-Dfile=./lib/javadiff.jar" "-DgroupId=dummy" "-DartifactId=javadiff" "-Dversion=0.0.3" "-Dpackaging=jar" "-DlocalRepositoryPath=${PWD}/repo/"
   -->
+  
+  <!-- ローカルリポジトリの定義 -->
   <!--
   <repositories>
     <repository>
@@ -55,30 +57,31 @@
 
 
     <!-- https://mvnrepository.com/artifact/org.mockito/mockito-core -->
-        <!-- Mockito core -->
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <version>${mockito.version}</version>
-            <scope>test</scope>
-        </dependency>
+    <!-- Mockito core -->
+    <dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-core</artifactId>
+        <version>${mockito.version}</version>
+        <scope>test</scope>
+    </dependency>
 
 
-        <!-- Mockito + JUnit5 連携 -->
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-junit-jupiter</artifactId>
-            <version>${mockito.version}</version>
-            <scope>test</scope>
-        </dependency>
+    <!-- Mockito + JUnit5 連携 -->
+    <dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-junit-jupiter</artifactId>
+        <version>${mockito.version}</version>
+        <scope>test</scope>
+    </dependency>
 
-        <!-- AssertJ -->
-        <dependency>
-            <groupId>org.assertj</groupId>
-            <artifactId>assertj-core</artifactId>
-            <version>${assertj.version}</version>
-            <scope>test</scope>
-        </dependency>
+
+    <!-- AssertJ -->
+    <dependency>
+        <groupId>org.assertj</groupId>
+        <artifactId>assertj-core</artifactId>
+        <version>${assertj.version}</version>
+        <scope>test</scope>
+    </dependency>
 
 
   </dependencies>

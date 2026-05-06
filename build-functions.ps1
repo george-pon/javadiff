@@ -54,25 +54,12 @@ function f-maven-build-run {
     # java -jar ./target/javadiff-1.0-${buildno}-jar-with-dependencies.jar -body-text  -url http://rakukan.net/article/469285083.html
 }
 
-# ビルドと起動 (maven)
-function f-maven-build-run-fetch {
-    $buildno = f-get-build-no
-    Write-Output "buildno is ${buildno}"
-    & mvn "-Drevision=${buildno}" clean package dependency:copy-dependencies -DincludeScope=runtime
-    java -jar ./target/javadiff-1.0.${buildno}-jar-with-dependencies.jar  -new-instance  -disp-url  -lastModified  -body-text  -url http://www.ceres.dti.ne.jp/~george/jdiary_last.html
-    # javadiff
-    # javadiff  -body-text  -url http://www.ceres.dti.ne.jp/~george/jindex.html
-    # javadiff  -body-text  -url http://blog.livedoor.jp/kaikaihanno/archives/55762990.html
-    # $CLASSPATH = "./target/javadiff.jar;./target/dependency/jsoup-1.15.4.jar;."
-    # java -classpath "$CLASSPATH" jp.or.rim.yk.george.javadiff.AppMain  -new-instance  -disp-url  -lastModified  -body-text  -url http://rakukan.net/article/469285083.html
-    # java -classpath "$CLASSPATH" jp.or.rim.yk.george.javadiff.AppMain  -new-instance  -disp-url  -lastModified  -body-text  -url http://www.ceres.dti.ne.jp/~george/jdiary_last.html
-    # java -jar ./target/javadiff-1.0-${buildno}-jar-with-dependencies.jar -body-text  -url http://rakukan.net/article/469285083.html
-}
-
 # maven で作った javadiff ライブラリを kjwikig にリリースする
 function f-maven-build-release {
+    $buildno = f-read-build-no
     Write-Output "copy ./target/javadiff.jar ../kjwikig/lib"
     Copy-Item ./target/javadiff.jar ../kjwikig/lib
+    Write-Output "release javadiff-1.0.${buildno}.jar"
 }
 
 # maven で作った javadiff ライブラリを freebsd側 にリリースする
@@ -82,7 +69,7 @@ function f-maven-build-release-freebsd {
     # javadiff シェルの作成。改行コードがCRLFになってしまうのでそこは手動で修正する必要がある。
     $main_str = @"
 #!/usr/bin/bash
-java -jar ~/bin/javadiff-1.0.${buildno}-jar-with-dependencies.jar "$@"
+java -jar ~/bin/javadiff-jar-with-dependencies.jar "$@"
 "@
     $main_file = "./target/javadiff"
     if ( Test-Path $main_file ) {
@@ -90,8 +77,8 @@ java -jar ~/bin/javadiff-1.0.${buildno}-jar-with-dependencies.jar "$@"
     }
     Write-Output $main_str | Add-Content -Encoding UTF8 "${main_file}"
 
-    scp ./target/javadiff-1.0.${buildno}-jar-with-dependencies.jar freebsd68:bin
-    scp ./target/javadiff freebsd68:bin
+    scp ./target/javadiff-jar-with-dependencies.jar freebsd69:bin
+    scp ./target/javadiff freebsd69:bin
 }
 
 # 開発開始時、maven build 起動まで実施
@@ -113,46 +100,6 @@ function f-maven-setup-all {
     if ( $LASTEXITCODE -ne 0 ) { Write-Output "build and run failed." ; return 1 }
 }
 
-#----------------------------------------------------------------------
-# gradle build 用 functions 最近は使っていない。
-#
-
-# ビルド
-function f-gradle-build {
-    gradle --warning-mode all     clean build jar distZip
-}
-
-# ビルドと起動
-function f-gradle-build-run {
-    gradle --warning-mode all     clean build jar distZip run
-}
-
-# ビルドと起動
-function f-gradle-build-run-fetch {
-    gradle --warning-mode all     clean build jar distZip run
-    if ( Test-Path ./hoge ) {
-        Write-Output "./hoge found."
-    }
-    else {
-        New-Item hoge -ItemType Directory
-    }
-    Push-Location hoge
-    unzip  ../build/distributions/javadiff.zip
-    Copy-Item javadiff/bin  /home   -Recurse -Force
-    Copy-Item javadiff/lib  /home   -Recurse -Force
-    Pop-Location
-    Remove-Item hoge -Recurse
-    # javadiff
-    # javadiff  -body-text  -url http://www.ceres.dti.ne.jp/~george/jindex.html
-    # javadiff  -body-text  -url http://blog.livedoor.jp/kaikaihanno/archives/55762990.html
-    javadiff  -body-text  -url http://rakukan.net/article/469285083.html
-}
-
-
-# ライブラリを追加した場合などに、eclipseの設定ファイルを作り直す
-function f-gradle-eclipse-setup {
-    gradle --warning-mode all     clean cleanEclipse   eclipse
-}
 
 #----------------------------------------------------------------------
 # eclipse起動
@@ -199,29 +146,6 @@ function f-wait-for-disk-idle {
     }
 }
 
-
-#----------------------------------------------------------------------
-# 開発開始時、ビルド、eclipse設定ファイル生成、gradle tomcat 起動まで実施
-# 最近は使っていない
-function f-gradle-setup-all {
-    f-gradle-build
-    if ( $LASTEXITCODE -ne 0 ) { Write-Output "build failed." ; return 1 }
-    f-gradle-eclipse-setup
-    if ( $LASTEXITCODE -ne 0 ) { Write-Output "build eclipse setup." ; return 1 }
-
-    # run eclipse
-    f-eclipse
-    Start-Sleep -Milliseconds 10000
-    f-wait-for-disk-idle
-
-    # run visual studio code
-    code . -r
-    Start-Sleep -Milliseconds 10000
-    f-wait-for-disk-idle
-
-    f-gradle-build-run
-    if ( $LASTEXITCODE -ne 0 ) { Write-Output "build and run failed." ; return 1 }
-}
 
 #
 # end of file
