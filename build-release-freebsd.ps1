@@ -1,5 +1,5 @@
 #
-# gradle build 用
+# ライブラリを起動中のfreebsd VMにscpする
 #
 
 . ./build-functions.ps1

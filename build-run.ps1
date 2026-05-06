@@ -1,10 +1,8 @@
 #
-# gradle build 用
+# コンパイルして実行する
 #
 
 . ./build-functions.ps1
-
-# f-gradle-build-run
 
 f-maven-build-run
 

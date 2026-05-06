@@ -86,7 +86,7 @@ public class SimpleDiff {
 		createDiffChunkList(arrOld, arrNew);
 
 		// diff chunk から 結果を作成する
-		return toString(disp).toArray(new String[0]);
+		return generateDisplayStringList(disp).toArray(new String[0]);
 	}
 
 	public void setOldFileName(String oldFileName) {
@@ -231,7 +231,7 @@ public class SimpleDiff {
 	//
 	// DiffDispInterfaceを使った表示を行う
 	//
-	public ArrayList<String> toString(DiffDispInterface disp) {
+	public ArrayList<String> generateDisplayStringList(DiffDispInterface disp) {
 		ArrayList<String> listResult = new ArrayList<String>();
 		int oldPos = 0;
 		int newPos = 0;

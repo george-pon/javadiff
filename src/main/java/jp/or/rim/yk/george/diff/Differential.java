@@ -7,6 +7,10 @@ import java.util.List;
 
 /**
  * 差分を取得するクラス。
+ * 
+ * 比較要素の数だけ３次元で配列を確保するアルゴリズムなのでメモリ不足になる。
+ * 
+ * これは使用しない。
  */
 public class Differential {
 	private static final int MAX_LIST_LENGTH = 254;
@@ -19,9 +23,7 @@ public class Differential {
 	private int lcsLength;
 
 	/**
-	 * デフォルトコンストラクタ。
-	 * それぞれのリストのメンバーは、List#getで取得されるので、
-	 * リストの実装にはArrayListを強く推奨。
+	 * デフォルトコンストラクタ。 それぞれのリストのメンバーは、List#getで取得されるので、 リストの実装にはArrayListを強く推奨。
 	 * 
 	 * @param x リスト1。
 	 * @param y リスト2。
@@ -32,10 +34,7 @@ public class Differential {
 	}
 
 	/**
-	 * ふたつのリストのLCSを求める。
-	 * 現在のアルゴリズムでは、LCS長計算のメモリ使用量がm*nなので、
-	 * よりメモリ使用量の
-	 * 少ないアルゴリズムの検討要。
+	 * ふたつのリストのLCSを求める。 現在のアルゴリズムでは、LCS長計算のメモリ使用量がm*nなので、 よりメモリ使用量の 少ないアルゴリズムの検討要。
 	 * また、LCSの検索も、改善の余地があると思われる。
 	 * 
 	 * @return LCS。リストが長すぎるなど、LCSを計算できない場合はnull。
@@ -71,9 +70,7 @@ public class Differential {
 				if (xobj.equals(yobj)) {
 					count[j][i] = (byte) (((int) count[j - 1][i - 1] & 0xff) + 1);
 				} else {
-					count[j][i] = (byte) Math.max(
-							((int) count[j][i - 1] & 0xff),
-							((int) count[j - 1][i] & 0xff));
+					count[j][i] = (byte) Math.max(((int) count[j][i - 1] & 0xff), ((int) count[j - 1][i] & 0xff));
 				}
 			}
 		}
@@ -117,8 +114,7 @@ public class Differential {
 		}
 
 		if (lcs.size() != lcsLength) {
-			throw new IllegalStateException(
-					"" + "Internal error. LCS length mismatch.");
+			throw new IllegalStateException("" + "Internal error. LCS length mismatch.");
 		}
 
 		Collections.reverse(lcs); // RANDOM_ACCESS_LISTでは、反転のコストは軽い
@@ -128,8 +124,7 @@ public class Differential {
 	/**
 	 * 差分を取得する。
 	 * 
-	 * @return 差分のリスト。メンバーはDifferentialDetail。
-	 *         差分が取得できなければnull。
+	 * @return 差分のリスト。メンバーはDifferentialDetail。 差分が取得できなければnull。
 	 */
 	public List<DifferentialDetail> getDiff() {
 		List<DifferentialDetail> diff;

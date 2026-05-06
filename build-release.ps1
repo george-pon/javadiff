@@ -1,10 +1,8 @@
 #
-# gradle build 用
+# ライブラリをkjwikigにコピーする
 #
 
 . ./build-functions.ps1
-
-# f-gradle-build-run
 
 # kjwikig の lib にコピーする
 f-maven-build-release

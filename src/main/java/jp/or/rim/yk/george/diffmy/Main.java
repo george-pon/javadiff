@@ -1,5 +1,5 @@
 //
-// ものすごく単純なdiffの実装
+// ものすごく単純なdiffの実装のMainクラス。
 //
 // 2008.08.02 by Jun Obama
 //
@@ -23,8 +23,8 @@ public class Main {
 
 	public static void usage(String msg) {
 		System.out.println("SimpleDiff - text diff program.");
-		System.out.println("usage)SimpleDiff old new");
-		System.out.println("usage)SimpleDiff -r olddir newdir");
+		System.out.println("usage: SimpleDiff oldfile newfile");
+		System.out.println("usage: SimpleDiff -r olddir newdir");
 		System.exit(1);
 	}
 
@@ -184,16 +184,16 @@ public class Main {
 				return;
 			} else {
 				switch (count) {
-					case 0:
-						oldFileName = args[i];
-						count++;
-						break;
-					case 1:
-						newFileName = args[i];
-						count++;
-						break;
-					default:
-						usage("too many file names.");
+				case 0:
+					oldFileName = args[i];
+					count++;
+					break;
+				case 1:
+					newFileName = args[i];
+					count++;
+					break;
+				default:
+					usage("too many file names.");
 				}
 			}
 		}
