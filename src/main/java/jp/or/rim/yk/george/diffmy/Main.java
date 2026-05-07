@@ -189,7 +189,7 @@ public class Main {
 					continue;
 				}
 				usage("unknown option.");
-				return 0;
+				return 1;
 			} else {
 				switch (count) {
 					case 0:
@@ -210,7 +210,7 @@ public class Main {
 		/* check invalid arg */
 		if (oldFileName == null || newFileName == null) {
 			usage("needs two file names.");
-			return 1;
+			return 0;
 		}
 
 		/* check recursive */

@@ -4,5 +4,9 @@
 
 . ./build-functions.ps1
 
-f-maven-build-run
+f-maven-build
+
+Push-Location .\test
+./testRun.ps1
+pop-location
 
