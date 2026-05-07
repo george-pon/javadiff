@@ -25,12 +25,11 @@ public class Main {
 		System.out.println("SimpleDiff - text diff program.");
 		System.out.println("usage: SimpleDiff oldfile newfile");
 		System.out.println("usage: SimpleDiff -r olddir newdir");
-		System.exit(1);
 	}
 
 	/**
 	 * ファイルから読み込んでString配列に格納する
-	 * 
+	 *
 	 * @param fileName
 	 * @return
 	 */
@@ -69,21 +68,24 @@ public class Main {
 	}
 
 	// ファイル単位の比較を実行。
-	private static void diffFile(String oldFileName, String newFileName) {
+	private static int diffFile(String oldFileName, String newFileName) {
 		String[] arrOld = readFromFile(oldFileName);
 		String[] arrNew = readFromFile(newFileName);
 		SimpleDiff diffObj = new SimpleDiff();
 		diffObj.setOldFileName(oldFileName);
 		diffObj.setNewFileName(newFileName);
-		String[] result = diffObj.diff(arrOld, arrNew);
-		if (result == null) {
+		String[] arrResult = diffObj.diff(arrOld, arrNew);
+		if (arrResult == null) {
 			System.out.println("result = null");
-			return;
+			return 1;
 		}
-		for (String s : result) {
+		for (String s : arrResult) {
 			System.out.println(s);
 		}
 		System.out.println("");
+		// diffの結果の値(0:差分なし)を取得
+		int resultCode = diffObj.getDiffResultCode();
+		return resultCode;
 	}
 
 	// サブディレクトリ名だけに限定
@@ -110,7 +112,9 @@ public class Main {
 	}
 
 	// ディレクトリ同士の比較を実施
-	private static void diffRecursive(String oldFileName, String newFileName) {
+	private static int diffRecursive(String oldFileName, String newFileName) {
+		// 返却値
+		int resultCode = 0;
 		// 親ディレクトリ設定
 		File oldParent = new File(oldFileName);
 		File newParent = new File(newFileName);
@@ -153,21 +157,25 @@ public class Main {
 
 			if (oldfile != null && newfile != null) {
 				// ファイルが両方存在する
-				diffFile(oldfile.getPath(), newfile.getPath());
+				int rc = diffFile(oldfile.getPath(), newfile.getPath());
+				resultCode = resultCode | rc;
 			} else if (oldfile == null) {
 				// 新規ファイル
-				diffFile(DEV_NULL_FILE, newfile.getPath());
+				int rc = diffFile(DEV_NULL_FILE, newfile.getPath());
+				resultCode = resultCode | rc;
 			} else if (newfile == null) {
 				// 削除ファイル
-				diffFile(oldfile.getPath(), DEV_NULL_FILE);
+				int rc = diffFile(oldfile.getPath(), DEV_NULL_FILE);
+				resultCode = resultCode | rc;
 			}
 		}
+		return resultCode;
 	}
 
 	/**
 	 * @param args
 	 */
-	public static void main(String[] args) {
+	public static int mainFunc(String[] args) {
 		String oldFileName = null;
 		String newFileName = null;
 		int count = 0;
@@ -181,19 +189,20 @@ public class Main {
 					continue;
 				}
 				usage("unknown option.");
-				return;
+				return 0;
 			} else {
 				switch (count) {
-				case 0:
-					oldFileName = args[i];
-					count++;
-					break;
-				case 1:
-					newFileName = args[i];
-					count++;
-					break;
-				default:
-					usage("too many file names.");
+					case 0:
+						oldFileName = args[i];
+						count++;
+						break;
+					case 1:
+						newFileName = args[i];
+						count++;
+						break;
+					default:
+						usage("too many file names.");
+						return 1;
 				}
 			}
 		}
@@ -201,16 +210,29 @@ public class Main {
 		/* check invalid arg */
 		if (oldFileName == null || newFileName == null) {
 			usage("needs two file names.");
+			return 1;
 		}
 
 		/* check recursive */
 		if (isRecursive) {
 			// ディレクトリ同士の比較実行
-			diffRecursive(oldFileName, newFileName);
+			int rc = diffRecursive(oldFileName, newFileName);
+			return rc;
 		} else {
 			// ファイル同士の比較実行
-			diffFile(oldFileName, newFileName);
+			int rc = diffFile(oldFileName, newFileName);
+			return rc;
 		}
+	}
+
+	/**
+	 * エントリー用
+	 *
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		int rc = mainFunc(args);
+		System.exit(rc);
 	}
 
 }

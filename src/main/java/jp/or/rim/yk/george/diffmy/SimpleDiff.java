@@ -14,7 +14,9 @@ import java.util.Collections;
 import java.util.Comparator;
 
 public class SimpleDiff {
+	// ログ
 	private java.util.logging.Logger log = java.util.logging.Logger.getLogger(this.getClass().getName());
+
 	private String[] arrOld = null;
 	private String[] arrNew = null;
 	ArrayList<DiffChunk> listChunk = null;
@@ -22,6 +24,11 @@ public class SimpleDiff {
 	private int newCur = 0;
 	private String oldFileName = "old";
 	private String newFileName = "new";
+	private int diffResultCode = 0;
+
+	public int getDiffResultCode() {
+		return this.diffResultCode;
+	}
 
 	// intの値の小さいほうを返す
 	public static int min(int a, int b) {
@@ -73,6 +80,9 @@ public class SimpleDiff {
 		// diff chunk list 調査と作成
 		createDiffChunkList(arrOld, arrNew);
 
+		// diff 差分の有無を保存
+		this.diffResultCode = diffChunkToInt(this.listChunk);
+
 		// diff chunk から 結果を作成する
 		return diffChunkToUnifiedDiffString(this.listChunk).toArray(new String[0]);
 	}
@@ -85,8 +95,11 @@ public class SimpleDiff {
 		// diff chunk list 調査と作成
 		createDiffChunkList(arrOld, arrNew);
 
+		// diff 差分の有無を保存
+		this.diffResultCode = diffChunkToInt(this.listChunk);
+
 		// diff chunk から 結果を作成する
-		return generateDisplayStringList(disp).toArray(new String[0]);
+		return generateDisplayStringList(this.listChunk, disp).toArray(new String[0]);
 	}
 
 	public void setOldFileName(String oldFileName) {
@@ -228,14 +241,39 @@ public class SimpleDiff {
 		return listResult;
 	}
 
+	// Chunkリストをスキャンして差分があるかどうかチェック。
+	//
+	// 差分がある場合は 0 ではない値を返却。
+	//
+	// 差分が無い場合は 0 を返却。
+	//
+	private int diffChunkToInt(ArrayList<DiffChunk> listChunk) {
+		for (DiffChunk chunk : listChunk) {
+			switch (chunk.mode) {
+				case SAME_MODE:
+					continue;
+				case INSERT_MODE:
+					return 1;
+				case DELETE_MODE:
+					return 1;
+				case MODIFY_MODE:
+					return 1;
+				default:
+					System.err.println("Hummmm....\n");
+					break;
+			} // end of switch chunk.mode
+		} // end of for listChunk
+		return 0;
+	}
+
 	//
 	// DiffDispInterfaceを使った表示を行う
 	//
-	public ArrayList<String> generateDisplayStringList(DiffDispInterface disp) {
+	public ArrayList<String> generateDisplayStringList(ArrayList<DiffChunk> listChunk, DiffDispInterface disp) {
 		ArrayList<String> listResult = new ArrayList<String>();
 		int oldPos = 0;
 		int newPos = 0;
-		for (DiffChunk chunk : this.listChunk) {
+		for (DiffChunk chunk : listChunk) {
 			switch (chunk.mode) {
 				case SAME_MODE: {
 					ArrayList<String> lines = new ArrayList<String>();

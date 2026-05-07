@@ -35,7 +35,8 @@ function f-read-build-no {
 function f-maven-build {
     $buildno = f-get-build-no
     Write-Output "buildno is ${buildno}"
-    & mvn "-Drevision=${buildno}" clean package
+    # ビルド
+    & mvn "-Drevision=${buildno}" clean package dependency:copy-dependencies -DincludeScope=runtime
 }
 
 # ビルドと起動 (maven)
@@ -96,8 +97,6 @@ function f-maven-setup-all {
     Start-Sleep -Milliseconds 10000
     f-wait-for-disk-idle
 
-    f-maven-build-run
-    if ( $LASTEXITCODE -ne 0 ) { Write-Output "build and run failed." ; return 1 }
 }
 
 
